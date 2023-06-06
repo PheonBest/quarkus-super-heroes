@@ -13,12 +13,17 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import org.eclipse.microprofile.faulttolerance.Fallback;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
 @Transactional(SUPPORTS)
 public class FightService {
+
+  @Channel("fights")
+  Emitter<Fight> emitter;
 
   // RestClient bean selctor
   // With Quarkus, when you use a qualifier, you can omit @Inject
@@ -95,6 +100,9 @@ public class FightService {
     fight.fightDate = Instant.now();
     fight.persist();
 
+    // Send the fight to Kafka
+    // wait until Kafka confirms the reception before returning
+    emitter.send(fight).toCompletableFuture().join();
     return fight;
   }
 

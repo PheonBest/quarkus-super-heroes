@@ -15,6 +15,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
@@ -28,7 +30,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestResponse;
-import org.jboss.resteasy.reactive.RestResponse.Status;
 
 /** JAX-RS API endpoints with <code>/api/heroes</code> as the base URI for all endpoints */
 @Path("/api/heroes")
@@ -51,8 +52,16 @@ public class HeroResource {
           @Content(
               mediaType = APPLICATION_JSON,
               schema = @Schema(implementation = Hero.class, required = true)))
-  public Uni<Hero> getRandomHero() {
-    return Hero.findRandom().invoke(h -> logger.debugf("Found random hero: %s", h));
+  public Uni<Response> getRandomHero() {
+    return Hero.findRandom()
+        .onItem().ifNotNull().transform(h -> {
+            logger.debugf("Found random hero: %s", h);
+            return Response.ok(h).build();
+        })
+        .onItem().ifNull().continueWith(() -> {
+            this.logger.debug("No random villain found");
+            return Response.ok().status(Status.NOT_FOUND).build();
+        });
   }
 
   @Operation(summary = "Returns all the heroes from the database")

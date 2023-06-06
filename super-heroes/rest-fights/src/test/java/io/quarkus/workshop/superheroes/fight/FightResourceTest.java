@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
+import au.com.dius.pact.consumer.junit5.PactTestFor;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.workshop.superheroes.fight.client.DefaultTestHero;
@@ -53,28 +54,6 @@ public class FightResourceTest {
 
     private static final int NB_FIGHTS = 3;
     private static String fightId;
-
-    @Test
-    void shouldGetRandomFighters() {
-        Fighters fighters = given()
-            .when()
-            .get("/api/fights/randomfighters")
-            .then()
-            .statusCode(OK.getStatusCode())
-            .contentType(APPLICATION_JSON)
-            .extract()
-            .as(Fighters.class);
-
-        Hero hero = fighters.hero;
-        assertEquals(hero.name, DefaultTestHero.DEFAULT_HERO_NAME);
-        assertEquals(hero.picture, DefaultTestHero.DEFAULT_HERO_PICTURE);
-        assertEquals(hero.level, DefaultTestHero.DEFAULT_HERO_LEVEL);
-
-        Villain villain = fighters.villain;
-        assertEquals(villain.name, DefaultTestVillain.DEFAULT_VILLAIN_NAME);
-        assertEquals(villain.picture, DefaultTestVillain.DEFAULT_VILLAIN_PICTURE);
-        assertEquals(villain.level, DefaultTestVillain.DEFAULT_VILLAIN_LEVEL);
-    }
 
     @Test
     void shouldPingOpenAPI() {

@@ -39,9 +39,9 @@ public class FightResource {
 
     @GET
     @Path("/randomfighters")
-    @Timeout(500) // <-- Added
+    @Timeout()
     public Response getRandomFighters() {
-        veryLongProcess(); // <-- Added
+        veryLongProcess();
         Fighters fighters = service.findRandomFighters();
         logger.debug("Get random fighters " + fighters);
         return Response.ok(fighters).build();
